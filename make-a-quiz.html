@@ -38,8 +38,9 @@
       <div id="quiz"></div>
     </div>
 
+    <script src="configuration.js"></script>
     <script>
-      let host = "http://localhost:8080";
+      let host = getHost();
       let questions = [];
       let list = document.getElementById("list");
       let quiz = document.getElementById("quiz");
@@ -51,7 +52,11 @@
       displayTheQuestions();
 
       async function getAll() {
-        let response = await fetch(host + "/questions");
+        let response = await fetch(host + "/questions", {
+          headers: {
+            Authorization: `Bearer ${configuration.token()}`
+          }
+        });
         let result = await response.json();
         return result;
       }
@@ -80,7 +85,7 @@
           div.className = "card";
           let innerHtml = `
        
-      <img src="http://localhost:8080/questions/${question.id}/image" alt="question" style="width:100%">
+      <img src="${URL.createObjectURL(await getTheImage(question.id))}" alt="question" style="width:100%">
       <div class="container">
         <h4><b>${question.id}</b></h4> 
         <p>${question.description}</p>
@@ -112,8 +117,9 @@
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${configuration.token()}`,
             },
-            body: JSON.stringify({"title": quizTitle, "questionIds": quizQuestions}),
+            body: JSON.stringify({title: quizTitle, questionIds: quizQuestions}),
           };
         } else {
           endpoint = host + "/quizzes/" + quizId;
@@ -121,8 +127,9 @@
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${configuration.token()}`,
             },
-            body: JSON.stringify({"id": quizId, "title": quizTitle, "questionIds": quizQuestions}),
+            body: JSON.stringify({id: quizId, title: quizTitle, questionIds: quizQuestions}),
           };
         }
 
